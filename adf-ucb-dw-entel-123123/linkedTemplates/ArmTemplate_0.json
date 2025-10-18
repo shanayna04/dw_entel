@@ -1,0 +1,629 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-ucb-dw-entel-123123"
+		},
+		"ls_sa_datos_entel_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"connectionString\"de \"ls_sa_datos_entel\""
+		},
+		"ls_sql_dw_entel_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_sql_dw_entel\""
+		},
+		"ls_sql_dw_entel_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-ucb-sisinfo-entel-delta-123.database.windows.net"
+		},
+		"ls_sql_dw_entel_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "dw_entel_delta"
+		},
+		"ls_sql_dw_entel_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "valshany"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sa_datos_entel')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobStorage",
+				"typeProperties": {
+					"connectionString": "[parameters('ls_sa_datos_entel_connectionString')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_sql_dw_entel')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_sql_dw_entel_properties_typeProperties_server')]",
+					"database": "[parameters('ls_sql_dw_entel_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_sql_dw_entel_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_sql_dw_entel_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_3_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sa_datos_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "03.csv",
+						"container": "raw-entel"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "SERVICIO",
+						"type": "String"
+					},
+					{
+						"name": "REGISTRO",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO_A",
+						"type": "String"
+					},
+					{
+						"name": "IMEI_A",
+						"type": "String"
+					},
+					{
+						"name": "RBS UTILIZADA_A",
+						"type": "String"
+					},
+					{
+						"name": "CELDA_A",
+						"type": "String"
+					},
+					{
+						"name": "LATITUD_LONGITUD_A",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO_B",
+						"type": "String"
+					},
+					{
+						"name": "IMEI_B",
+						"type": "String"
+					},
+					{
+						"name": "RBS_UTILIZADA_B",
+						"type": "String"
+					},
+					{
+						"name": "CELDA_B",
+						"type": "String"
+					},
+					{
+						"name": "LATITUD_LONGITUD_B",
+						"type": "String"
+					},
+					{
+						"name": "FECHA",
+						"type": "String"
+					},
+					{
+						"name": "DURACION",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sa_datos_entel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_5_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sa_datos_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "05.csv",
+						"container": "raw-entel"
+					},
+					"columnDelimiter": ";",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "FECHA_INICIO",
+						"type": "String"
+					},
+					{
+						"name": "FECHA_FIN",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO",
+						"type": "String"
+					},
+					{
+						"name": "IMEI",
+						"type": "String"
+					},
+					{
+						"name": "RBS_UTILIZADA",
+						"type": "String"
+					},
+					{
+						"name": "CELDA",
+						"type": "String"
+					},
+					{
+						"name": "LATITUD LONGITUD",
+						"type": "String"
+					},
+					{
+						"name": "SUBIDOS",
+						"type": "String"
+					},
+					{
+						"name": "DESCARGADOS",
+						"type": "String"
+					},
+					{
+						"name": "TOTAL",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sa_datos_entel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_6_csv')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sa_datos_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Bronze"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobStorageLocation",
+						"fileName": "06.csv",
+						"container": "raw-entel"
+					},
+					"columnDelimiter": ";",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "FECHA_INICIO",
+						"type": "String"
+					},
+					{
+						"name": "FECHA_FIN",
+						"type": "String"
+					},
+					{
+						"name": "NUMERO",
+						"type": "String"
+					},
+					{
+						"name": "IMEI",
+						"type": "String"
+					},
+					{
+						"name": "RBS_UTILIZADA",
+						"type": "String"
+					},
+					{
+						"name": "CELDA",
+						"type": "String"
+					},
+					{
+						"name": "LATITUD LONGITUD",
+						"type": "String"
+					},
+					{
+						"name": "SUBIDOS",
+						"type": "String"
+					},
+					{
+						"name": "DESCARGADOS",
+						"type": "String"
+					},
+					{
+						"name": "TOTAL",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sa_datos_entel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver_sql_datos_entel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Silver"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "fecha_inicio",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "fecha_fin",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "numero",
+						"type": "nvarchar"
+					},
+					{
+						"name": "imei",
+						"type": "nvarchar"
+					},
+					{
+						"name": "rbs_utilizada",
+						"type": "nvarchar"
+					},
+					{
+						"name": "celda",
+						"type": "nvarchar"
+					},
+					{
+						"name": "latitud",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 0
+					},
+					{
+						"name": "longitud",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 0
+					},
+					{
+						"name": "subidos",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "descargados",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "total",
+						"type": "int",
+						"precision": 10
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "datos"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_entel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_silver_sql_llamadas_entel')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Silver"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "servicio",
+						"type": "nvarchar"
+					},
+					{
+						"name": "registro",
+						"type": "nvarchar"
+					},
+					{
+						"name": "numero_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "imei_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "rbs_utilizada_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "celda_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "latitud_a",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 0
+					},
+					{
+						"name": "longitud_a",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 0
+					},
+					{
+						"name": "numero_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "imei_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "rbs_utilizada_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "celda_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "latitud_b",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 0
+					},
+					{
+						"name": "longitud_b",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 0
+					},
+					{
+						"name": "fecha",
+						"type": "datetime",
+						"precision": 23,
+						"scale": 3
+					},
+					{
+						"name": "duracion",
+						"type": "time",
+						"scale": 7
+					}
+				],
+				"typeProperties": {
+					"schema": "silver",
+					"table": "llamadas"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_entel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sql_datos')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Bronze"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "fecha_inicio",
+						"type": "nvarchar"
+					},
+					{
+						"name": "fecha_fin",
+						"type": "nvarchar"
+					},
+					{
+						"name": "numero",
+						"type": "nvarchar"
+					},
+					{
+						"name": "imei",
+						"type": "nvarchar"
+					},
+					{
+						"name": "rbs_utilizada",
+						"type": "nvarchar"
+					},
+					{
+						"name": "celda",
+						"type": "nvarchar"
+					},
+					{
+						"name": "latitud_logitud",
+						"type": "nvarchar"
+					},
+					{
+						"name": "subidos",
+						"type": "nvarchar"
+					},
+					{
+						"name": "descargados",
+						"type": "nvarchar"
+					},
+					{
+						"name": "total",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "BRONZE",
+					"table": "datos"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_entel')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_sql_llamadas')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_sql_dw_entel",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Bronze"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "servicio",
+						"type": "nvarchar"
+					},
+					{
+						"name": "registro",
+						"type": "nvarchar"
+					},
+					{
+						"name": "numero_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "imei_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "rbs_utilizada_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "celda_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "latitud_longitud_a",
+						"type": "nvarchar"
+					},
+					{
+						"name": "numero_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "imei_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "rbs_utilizada_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "celda_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "latitud_longitud_b",
+						"type": "nvarchar"
+					},
+					{
+						"name": "fecha",
+						"type": "nvarchar"
+					},
+					{
+						"name": "duracion",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "BRONZE",
+					"table": "llamadas"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_sql_dw_entel')]"
+			]
+		}
+	]
+}
