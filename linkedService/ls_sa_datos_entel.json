@@ -5,8 +5,8 @@
 		"annotations": [],
 		"type": "AzureTableStorage",
 		"typeProperties": {
-			"connectionString": "DefaultEndpointsProtocol=https;AccountName=saucbenteldelta12371724;EndpointSuffix=core.windows.net;",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDM3MjE4QjhBLTNEM0YtNDY1Ri05NTc2LTJEMkI5MkU3REY3Ml82ZmQ0MDczYS1kMDdmLTRjY2YtOWJjMi1hNzFhOTg5NjE0NTAiDQp9"
+			"connectionString": "DefaultEndpointsProtocol=https;AccountName=saucbenteldelta123123;EndpointSuffix=core.windows.net;",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEE5OTUxMEYyLUQ4NDQtNDU2RC04QjUwLTEwMDc0NTFDQjVDNV85Yjc5YTZmMy1hMmVlLTQ0MWItOTZjNi1hODdkZWVkY2Y3MDAiDQp9"
 		}
 	}
 }
