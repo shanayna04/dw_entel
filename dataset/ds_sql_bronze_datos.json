@@ -1,5 +1,5 @@
 {
-	"name": "ds_sql_datos",
+	"name": "ds_sql_bronze_datos",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_sql_dw_entel",
