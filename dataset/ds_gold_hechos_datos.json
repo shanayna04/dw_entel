@@ -1,0 +1,60 @@
+{
+	"name": "ds_gold_hechos_datos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_sql_dw_entel",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_datos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "subidos",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "decargados",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "total",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_fecha_inicio",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_fecha_fin",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_numero",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_radiobase",
+				"type": "int",
+				"precision": 10
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "hechos_datos"
+		}
+	}
+}
