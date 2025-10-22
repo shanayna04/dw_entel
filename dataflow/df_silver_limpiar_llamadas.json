@@ -36,6 +36,9 @@
 				},
 				{
 					"name": "select1"
+				},
+				{
+					"name": "derivedColumn3"
 				}
 			],
 			"scriptLines": [
@@ -70,7 +73,7 @@
 				"          longitud_a = toDecimal(coord_temp_a[2]),",
 				"          latitud_b = toDecimal(coord_temp_b[1]),",
 				"          longitud_b = toDecimal(coord_temp_b[2])) ~> derivedColumn2",
-				"derivedColumn2 select(mapColumn(",
+				"derivedColumn3 select(mapColumn(",
 				"          servicio,",
 				"          registro,",
 				"          numero_a,",
@@ -90,6 +93,8 @@
 				"     ),",
 				"     skipDuplicateMapInputs: true,",
 				"     skipDuplicateMapOutputs: true) ~> select1",
+				"derivedColumn2 derive(numero_a = replace(toString(numero_a), '.0', ''),",
+				"          numero_b = replace(toString(numero_b), '.0', '')) ~> derivedColumn3",
 				"select1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",

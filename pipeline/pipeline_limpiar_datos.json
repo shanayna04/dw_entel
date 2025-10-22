@@ -16,7 +16,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"dataflow": {
-						"referenceName": "df_silver_limpiar_datos1",
+						"referenceName": "df_silver_limpiar_datos",
 						"type": "DataFlowReference"
 					},
 					"compute": {

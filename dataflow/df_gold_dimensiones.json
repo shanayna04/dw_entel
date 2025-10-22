@@ -1,0 +1,70 @@
+{
+	"name": "df_gold_dimensiones",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_datos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "source3"
+				}
+			],
+			"sinks": [],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          numero as string,",
+				"          imei as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select distinct numero, imei from silver.datos',",
+				"     format: 'query') ~> source1",
+				"source(output(",
+				"          numero_a as string,",
+				"          imei_a as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select distinct numero_a, imei_a from silver.llamadas',",
+				"     format: 'query') ~> source2",
+				"source(output(",
+				"          numero_b as string,",
+				"          imei_b as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select distinct numero_b, imei_b from silver.llamadas',",
+				"     format: 'query') ~> source3",
+				"source1, source2 union(byName: true)~> union1"
+			]
+		}
+	}
+}
