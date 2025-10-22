@@ -13,12 +13,60 @@
 						"type": "DatasetReference"
 					},
 					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_fecha",
+						"type": "DatasetReference"
+					},
+					"name": "dimFecha"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_fecha",
+						"type": "DatasetReference"
+					},
+					"name": "dimFecha2"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_numero",
+						"type": "DatasetReference"
+					},
+					"name": "dimNumero"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_radiobase",
+						"type": "DatasetReference"
+					},
+					"name": "dimRadioBase"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_gold_hechos_datos",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "lookup1"
+				},
+				{
+					"name": "lookup2"
+				},
+				{
+					"name": "lookup3"
+				},
+				{
+					"name": "lookup4"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -39,10 +87,95 @@
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
 				"     format: 'table') ~> source1",
-				"source1 lookup(ERROR_FUNCTION('') == ERROR_FUNCTION(''),",
+				"source(output(",
+				"          id_fecha as integer,",
+				"          fecha as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimFecha",
+				"source(output(",
+				"          id_fecha as integer,",
+				"          fecha as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimFecha2",
+				"source(output(",
+				"          id_numero as integer,",
+				"          numero as string,",
+				"          imei as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimNumero",
+				"source(output(",
+				"          radiobase as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select radiobase from gold.dim_radiobase',",
+				"     format: 'query') ~> dimRadioBase",
+				"source1, dimFecha lookup(fecha_inicio == fecha,",
 				"     multiple: false,",
 				"     pickup: 'any',",
-				"     broadcast: 'auto')~> lookup1"
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1, dimFecha2 lookup(fecha_fin == dimFecha2@fecha,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup2",
+				"lookup2, dimNumero lookup(source1@numero == dimNumero@numero,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup3",
+				"lookup3, dimRadioBase lookup(rbs_utilizada == radiobase,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup4",
+				"lookup4 select(mapColumn(",
+				"          subidos,",
+				"          descargados,",
+				"          total,",
+				"          id_fecha_inicio = dimFecha@id_fecha,",
+				"          id_fecha_fin = dimFecha2@id_fecha,",
+				"          id_numero,",
+				"          id_radiobase = radiobase",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_datos as integer,",
+				"          subidos as integer,",
+				"          decargados as integer,",
+				"          total as integer,",
+				"          id_fecha_inicio as integer,",
+				"          id_fecha_fin as integer,",
+				"          id_numero as integer,",
+				"          id_radiobase as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          subidos,",
+				"          decargados = descargados,",
+				"          total,",
+				"          id_fecha_inicio,",
+				"          id_fecha_fin,",
+				"          id_numero,",
+				"          id_radiobase",
+				"     )) ~> sink1"
 			]
 		}
 	}
