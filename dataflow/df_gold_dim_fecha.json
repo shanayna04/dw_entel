@@ -13,6 +13,20 @@
 						"type": "DatasetReference"
 					},
 					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_datos",
+						"type": "DatasetReference"
+					},
+					"name": "source2"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_datos",
+						"type": "DatasetReference"
+					},
+					"name": "source3"
 				}
 			],
 			"sinks": [
@@ -24,21 +38,38 @@
 					"name": "sink1"
 				}
 			],
-			"transformations": [],
+			"transformations": [
+				{
+					"name": "union1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
-				"          fecha as timestamp,",
-				"          {año} as integer,",
-				"          mes as integer,",
-				"          mes_texto as string,",
-				"          dia_texto as string",
+				"          fecha as timestamp",
 				"     ),",
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     query: 'select\\nDISTINCT fecha as fecha,\\nYEAR(fecha) as año,\\nMONTH(fecha) as mes,\\nDATENAME(month, fecha) as mes_texto,\\nDATENAME(dw,fecha) as dia_texto\\nfrom silver.llamadas',",
+				"     query: 'select\\nDISTINCT fecha from silver.llamadas',",
 				"     format: 'query') ~> source1",
-				"source1 sink(allowSchemaDrift: true,",
+				"source(output(",
+				"          fecha_inicio as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select distinct fecha_inicio from silver.datos',",
+				"     format: 'query') ~> source2",
+				"source(output(",
+				"          fecha_fin as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select distinct fecha_fin from silver.datos',",
+				"     format: 'query') ~> source3",
+				"source1, source2, source3 union(byName: false)~> union1",
+				"union1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          id_fecha as integer,",
