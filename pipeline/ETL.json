@@ -22,7 +22,7 @@
 					"scripts": [
 						{
 							"type": "Query",
-							"text": "delete from gold.dim_fecha\r\ndelete from gold.dim_numero\r\ndelete from gold.dim_radiobase\r\ndelete from gold.hechos_datos\r\ndelete from gold.dim_servicio\r\ndelete from gold.dim_registro\r\ndelete from gold.hechos_llamadas"
+							"text": "delete from gold.dim_fecha\r\ndelete from gold.dim_numero\r\ndelete from gold.dim_radiobase\r\ndelete from gold.hechos_datos\r\n"
 						}
 					],
 					"scriptBlockExecutionTimeout": "02:00:00"
@@ -62,7 +62,14 @@
 			{
 				"name": "dim_numero",
 				"type": "ExecuteDataFlow",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "dim_fecha",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -72,6 +79,72 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_gold_dim_numero",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "dim_radiobase",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "dim_numero",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_gold_dim_radiobase",
+						"type": "DataFlowReference"
+					},
+					"compute": {
+						"coreCount": 8,
+						"computeType": "General"
+					},
+					"traceLevel": "Fine"
+				}
+			},
+			{
+				"name": "hechos_datos",
+				"type": "ExecuteDataFlow",
+				"dependsOn": [
+					{
+						"activity": "dim_radiobase",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataflow": {
+						"referenceName": "df_gold_hechos_datos",
+						"type": "DataFlowReference"
+					},
 					"compute": {
 						"coreCount": 8,
 						"computeType": "General"
