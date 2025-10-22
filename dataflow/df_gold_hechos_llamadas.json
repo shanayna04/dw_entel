@@ -1,0 +1,259 @@
+{
+	"name": "df_gold_hechos_llamadas",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_servicio",
+						"type": "DatasetReference"
+					},
+					"name": "dimServicio"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_registro",
+						"type": "DatasetReference"
+					},
+					"name": "dimRegistro"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_numero",
+						"type": "DatasetReference"
+					},
+					"name": "dimNumeroA"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_radiobase",
+						"type": "DatasetReference"
+					},
+					"name": "dimRadiobaseA"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_numero",
+						"type": "DatasetReference"
+					},
+					"name": "dimNumeroB"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_radiobase",
+						"type": "DatasetReference"
+					},
+					"name": "dimRadiobaseB"
+				},
+				{
+					"dataset": {
+						"referenceName": "ds_gold_dim_fecha",
+						"type": "DatasetReference"
+					},
+					"name": "dimFecha"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_gold_hechos_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "lookup1"
+				},
+				{
+					"name": "lookup2"
+				},
+				{
+					"name": "lookup3"
+				},
+				{
+					"name": "lookup4"
+				},
+				{
+					"name": "lookup5"
+				},
+				{
+					"name": "lookup6"
+				},
+				{
+					"name": "lookup7"
+				},
+				{
+					"name": "select1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          servicio as string,",
+				"          registro as string,",
+				"          numero_a as string,",
+				"          imei_a as string,",
+				"          rbs_utilizada_a as string,",
+				"          celda_a as string,",
+				"          latitud_a as decimal(18,0),",
+				"          longitud_a as decimal(18,0),",
+				"          numero_b as string,",
+				"          imei_b as string,",
+				"          rbs_utilizada_b as string,",
+				"          celda_b as string,",
+				"          latitud_b as decimal(18,0),",
+				"          longitud_b as decimal(18,0),",
+				"          fecha as timestamp,",
+				"          duracion as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> source1",
+				"source(output(",
+				"          id_servicio as integer,",
+				"          servicio as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimServicio",
+				"source(output(",
+				"          id_registro as integer,",
+				"          registro as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimRegistro",
+				"source(output(",
+				"          id_numero as integer,",
+				"          numero as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select id_numero, numero from gold.dim_numero',",
+				"     format: 'query') ~> dimNumeroA",
+				"source(output(",
+				"          id_radiobase as integer,",
+				"          radiobase as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select id_radiobase, radiobase from gold.dim_radiobase',",
+				"     format: 'query') ~> dimRadiobaseA",
+				"source(output(",
+				"          id_numero as integer,",
+				"          numero as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select id_numero, numero from gold.dim_numero',",
+				"     format: 'query') ~> dimNumeroB",
+				"source(output(",
+				"          id_radiobase as integer,",
+				"          radiobase as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select id_radiobase, radiobase from gold.dim_radiobase',",
+				"     format: 'query') ~> dimRadiobaseB",
+				"source(output(",
+				"          id_fecha as integer,",
+				"          fecha as timestamp",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> dimFecha",
+				"source1, dimServicio lookup(source1@servicio == dimServicio@servicio,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup1",
+				"lookup1, dimRegistro lookup(source1@registro == dimRegistro@registro,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup2",
+				"lookup2, dimNumeroA lookup(numero_a == numero,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup3",
+				"lookup3, dimRadiobaseA lookup(rbs_utilizada_a == radiobase,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup4",
+				"lookup4, dimNumeroB lookup(numero_b == dimNumeroB@numero,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup5",
+				"lookup5, dimRadiobaseB lookup(rbs_utilizada_b == dimRadiobaseB@radiobase,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup6",
+				"lookup6, dimFecha lookup(source1@fecha == dimFecha@fecha,",
+				"     multiple: false,",
+				"     pickup: 'any',",
+				"     broadcast: 'auto')~> lookup7",
+				"lookup7 select(mapColumn(",
+				"          duracion,",
+				"          id_servicio,",
+				"          id_registro,",
+				"          id_numero_a = dimNumeroA@id_numero,",
+				"          id_radiobase_a = dimRadiobaseA@id_radiobase,",
+				"          id_numero_b = dimNumeroB@id_numero,",
+				"          id_radiobase_b = dimRadiobaseB@id_radiobase,",
+				"          id_fecha",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_llamada as integer,",
+				"          duracion as timestamp,",
+				"          id_servicio as integer,",
+				"          id_registro as integer,",
+				"          id_numero_a as integer,",
+				"          id_radiobase_a as integer,",
+				"          id_numero_b as integer,",
+				"          id_radiobase_b as integer,",
+				"          id_fecha as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          duracion,",
+				"          id_servicio,",
+				"          id_registro,",
+				"          id_numero_a,",
+				"          id_radiobase_a,",
+				"          id_numero_b,",
+				"          id_radiobase_b,",
+				"          id_fecha",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
